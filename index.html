@@ -1,0 +1,551 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Japan Trip 2570 🇯🇵</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/firebase/9.23.0/firebase-app-compat.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/firebase/9.23.0/firebase-database-compat.min.js"></script>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+Thai:wght@300;400;500;600;700&display=swap');
+  :root{--ink:#1a1a2e;--ink2:#444466;--muted:#8888aa;--bg:#f7f6f2;--card:#fff;--border:#e8e6f0;--japan:#c0392b;--japan-light:#fdf0ee;--green:#2ecc71;--green-light:#edfaf3;--gold:#f39c12;--gold-light:#fef9ee;--blue:#2980b9;--blue-light:#eef6fd;--radius:14px;--shadow:0 2px 16px rgba(26,26,46,.07)}
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:'Noto Sans Thai',sans-serif;background:var(--bg);color:var(--ink);min-height:100vh}
+  .header{background:var(--ink);padding:20px 20px 16px;position:sticky;top:0;z-index:100}
+  .header-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}
+  .header-title{font-size:18px;font-weight:600;color:#fff}
+  .header-sub{font-size:12px;color:#aaa;margin-top:2px}
+  .sync-status{font-size:11px;color:#aaa;display:flex;align-items:center;gap:5px}
+  .sync-dot{width:8px;height:8px;border-radius:50%;background:#666;flex-shrink:0}
+  .sync-dot.ok{background:var(--green)}.sync-dot.err{background:#e74c3c}.sync-dot.loading{background:var(--gold);animation:pulse 1s infinite}
+  @keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+  .tabs{display:flex;gap:6px;overflow-x:auto;padding-bottom:2px}
+  .tabs::-webkit-scrollbar{display:none}
+  .tab{padding:7px 14px;border-radius:20px;font-size:13px;font-weight:500;border:none;cursor:pointer;white-space:nowrap;background:rgba(255,255,255,.1);color:rgba(255,255,255,.6);transition:all .15s}
+  .tab.active{background:var(--japan);color:#fff}
+  .content{padding:16px;max-width:600px;margin:0 auto}
+  .section{display:none}.section.active{display:block}
+  .card{background:var(--card);border-radius:var(--radius);border:1px solid var(--border);box-shadow:var(--shadow);margin-bottom:12px;overflow:hidden}
+  .card-header{padding:14px 16px 12px;display:flex;align-items:center;justify-content:space-between;cursor:pointer;user-select:none}
+  .card-header-left{display:flex;align-items:center;gap:10px}
+  .day-badge{background:var(--ink);color:#fff;font-size:11px;font-weight:600;padding:3px 8px;border-radius:6px;white-space:nowrap}
+  .day-title{font-size:15px;font-weight:600}.day-sub{font-size:12px;color:var(--muted);margin-top:1px}
+  .chevron{color:var(--muted);font-size:14px;transition:transform .2s}
+  .card.open .chevron{transform:rotate(180deg)}
+  .card-body{display:none;border-top:1px solid var(--border)}.card.open .card-body{display:block}
+  .timeline{padding:12px 16px}
+  .tl-item{display:flex;gap:12px;margin-bottom:14px}.tl-item:last-child{margin-bottom:0}
+  .tl-left{display:flex;flex-direction:column;align-items:center}
+  .tl-dot{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;flex-shrink:0;background:var(--japan-light);border:2px solid var(--border)}
+  .tl-line{width:2px;background:var(--border);flex:1;margin:4px 0;min-height:12px}
+  .tl-right{flex:1;padding-bottom:4px}
+  .tl-time{font-size:11px;color:var(--muted);font-weight:500;margin-bottom:2px}
+  .tl-label{font-size:14px;font-weight:500;line-height:1.4}
+  .tl-detail{font-size:12px;color:var(--ink2);margin-top:3px;line-height:1.5}
+  .edit-btn{margin:0 16px 14px;padding:8px 14px;border-radius:8px;font-size:13px;font-weight:500;cursor:pointer;background:var(--japan-light);color:var(--japan);border:1px solid #f0c0bb;width:calc(100% - 32px);display:flex;align-items:center;justify-content:center;gap:6px}
+  .budget-summary{background:var(--card);border-radius:var(--radius);border:1px solid var(--border);box-shadow:var(--shadow);padding:16px;margin-bottom:12px}
+  .budget-title{font-size:13px;font-weight:600;color:var(--muted);margin-bottom:10px}
+  .budget-total{font-size:28px;font-weight:700;color:var(--ink)}
+  .budget-total span{font-size:14px;color:var(--muted);font-weight:400}
+  .budget-bar{height:6px;background:var(--border);border-radius:3px;margin:10px 0;overflow:hidden}
+  .budget-bar-fill{height:100%;background:var(--japan);border-radius:3px;transition:width .3s}
+  .budget-meta{display:flex;justify-content:space-between;font-size:12px;color:var(--muted)}
+  .budget-cats{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px}
+  .budget-cat{background:var(--card);border-radius:10px;border:1px solid var(--border);padding:12px}
+  .cat-icon{font-size:20px;margin-bottom:4px}.cat-label{font-size:11px;color:var(--muted);font-weight:500}
+  .cat-amount{font-size:16px;font-weight:600;margin-top:2px}
+  .expense-list{background:var(--card);border-radius:var(--radius);border:1px solid var(--border);overflow:hidden;margin-bottom:12px}
+  .expense-item{padding:12px 16px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--border)}
+  .expense-item:last-child{border-bottom:none}
+  .exp-left{display:flex;align-items:center;gap:10px}
+  .exp-icon{width:32px;height:32px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:15px}
+  .exp-name{font-size:14px;font-weight:500}.exp-cat{font-size:11px;color:var(--muted)}
+  .exp-amount{font-size:14px;font-weight:600}
+  .exp-del{font-size:16px;color:#ddd;margin-left:8px;cursor:pointer}.exp-del:hover{color:var(--japan)}
+  .add-btn{width:100%;padding:12px;border-radius:var(--radius);border:2px dashed var(--border);background:transparent;color:var(--muted);font-size:14px;cursor:pointer;font-family:inherit;margin-bottom:12px;transition:all .15s}
+  .add-btn:hover{border-color:var(--japan);color:var(--japan);background:var(--japan-light)}
+  .form-card{background:var(--card);border-radius:var(--radius);border:1px solid var(--border);padding:16px;margin-bottom:12px;display:none}
+  .form-card.open{display:block}
+  label{font-size:12px;font-weight:600;color:var(--muted);display:block;margin-bottom:4px;margin-top:10px}
+  label:first-child{margin-top:0}
+  input,select,textarea{width:100%;padding:9px 12px;border-radius:8px;border:1px solid var(--border);font-size:14px;font-family:inherit;background:#fff;color:var(--ink);outline:none}
+  input:focus,select:focus,textarea:focus{border-color:var(--japan)}
+  textarea{min-height:70px;resize:vertical}
+  .form-btns{display:flex;gap:8px;margin-top:12px}
+  .btn-save{flex:1;padding:9px;border-radius:8px;border:none;background:var(--japan);color:#fff;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit}
+  .btn-cancel{padding:9px 16px;border-radius:8px;border:1px solid var(--border);background:#fff;color:var(--ink2);font-size:14px;cursor:pointer;font-family:inherit}
+  .check-group{background:var(--card);border-radius:var(--radius);border:1px solid var(--border);overflow:hidden;margin-bottom:12px}
+  .check-group-header{padding:12px 16px;font-size:13px;font-weight:600;color:var(--muted);background:#fafaf8;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center}
+  .check-progress{font-size:12px;color:var(--green);font-weight:600}
+  .check-item{padding:12px 16px;display:flex;align-items:center;gap:12px;border-bottom:1px solid var(--border);cursor:pointer}
+  .check-item:last-child{border-bottom:none}
+  .check-item.done .check-label{text-decoration:line-through;color:var(--muted)}
+  .check-box{width:20px;height:20px;border-radius:50%;border:2px solid var(--border);flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:10px;transition:all .15s}
+  .check-item.done .check-box{background:var(--green);border-color:var(--green);color:#fff}
+  .check-label{font-size:14px;flex:1}
+  .check-tag{font-size:10px;padding:2px 7px;border-radius:10px;font-weight:500}
+  .tag-urgent{background:#fdecea;color:var(--japan)}.tag-soon{background:var(--gold-light);color:var(--gold)}.tag-ok{background:var(--green-light);color:#27ae60}
+  .info-chips{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px}
+  .chip{padding:6px 12px;border-radius:20px;font-size:12px;font-weight:500;display:flex;align-items:center;gap:5px}
+  .chip-red{background:var(--japan-light);color:var(--japan)}.chip-blue{background:var(--blue-light);color:var(--blue)}.chip-green{background:var(--green-light);color:#27ae60}.chip-gold{background:var(--gold-light);color:var(--gold)}
+  .section-label{font-size:12px;font-weight:600;color:var(--muted);margin-bottom:8px;letter-spacing:.5px;text-transform:uppercase}
+  .members{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px}
+  .member{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:10px 12px;display:flex;align-items:center;gap:8px}
+  .member-avatar{font-size:20px}.member-name{font-size:13px;font-weight:600}.member-role{font-size:11px;color:var(--muted)}
+  .modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:200;display:none;align-items:flex-end}
+  .modal-overlay.open{display:flex}
+  .modal{background:#fff;border-radius:20px 20px 0 0;padding:20px;width:100%;max-height:80vh;overflow-y:auto}
+  .modal-title{font-size:16px;font-weight:600;margin-bottom:14px}
+  .modal-btns{display:flex;gap:8px;margin-top:16px}
+  .modal-save{flex:1;padding:12px;border-radius:10px;border:none;background:var(--japan);color:#fff;font-size:15px;font-weight:600;cursor:pointer;font-family:inherit}
+  .modal-cancel{padding:12px 16px;border-radius:10px;border:1px solid var(--border);background:#fff;color:var(--ink2);font-size:15px;cursor:pointer;font-family:inherit}
+  .note-box{background:var(--gold-light);border:1px solid #f5d98e;border-radius:10px;padding:12px 14px;font-size:13px;color:#7a5500;margin-bottom:12px;line-height:1.6}
+  .toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:var(--ink);color:#fff;padding:8px 18px;border-radius:20px;font-size:13px;opacity:0;transition:opacity .3s;z-index:300;pointer-events:none;white-space:nowrap}
+  .toast.show{opacity:1}
+  .loading{text-align:center;padding:24px;color:var(--muted);font-size:14px}
+  .route-step{display:flex;align-items:center;gap:10px;margin-bottom:8px}
+  .route-num{background:var(--japan);color:#fff;border-radius:50%;width:24px;height:24px;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-top">
+    <div>
+      <div class="header-title">🇯🇵 Japan Trip 2570</div>
+      <div class="header-sub">มิ.ย. 2570 · 7 วัน · 6 คน</div>
+    </div>
+    <div class="sync-status"><span class="sync-dot loading" id="sync-dot"></span><span id="sync-text">กำลังเชื่อมต่อ...</span></div>
+  </div>
+  <div class="tabs">
+    <button class="tab active" onclick="showTab('itinerary',this)">📅 ตาราง</button>
+    <button class="tab" onclick="showTab('budget',this)">💰 งบ</button>
+    <button class="tab" onclick="showTab('checklist',this)">✅ Checklist</button>
+    <button class="tab" onclick="showTab('info',this)">ℹ️ ข้อมูล</button>
+  </div>
+</div>
+
+<div class="content">
+  <!-- ITINERARY -->
+  <div class="section active" id="tab-itinerary">
+    <div class="loading" id="itinerary-loading">⏳ กำลังโหลด...</div>
+    <div id="days-container"></div>
+  </div>
+
+  <!-- BUDGET -->
+  <div class="section" id="tab-budget">
+    <div class="budget-summary">
+      <div class="budget-title">งบรวมทั้งทริป (ไม่รวมตั๋ว)</div>
+      <div class="budget-total" id="total-display">฿0 <span>/ ฿150,000</span></div>
+      <div class="budget-bar"><div class="budget-bar-fill" id="budget-bar" style="width:0%"></div></div>
+      <div class="budget-meta"><span id="spent-label">ใช้แล้ว ฿0</span><span id="remain-label">เหลือ ฿150,000</span></div>
+    </div>
+    <div class="budget-cats">
+      <div class="budget-cat"><div class="cat-icon">🏨</div><div class="cat-label">ที่พัก</div><div class="cat-amount" id="cat-stay">฿0</div></div>
+      <div class="budget-cat"><div class="cat-icon">🚗</div><div class="cat-label">เดินทาง</div><div class="cat-amount" id="cat-transport">฿0</div></div>
+      <div class="budget-cat"><div class="cat-icon">🍜</div><div class="cat-label">อาหาร</div><div class="cat-amount" id="cat-food">฿0</div></div>
+      <div class="budget-cat"><div class="cat-icon">🎟️</div><div class="cat-label">กิจกรรม</div><div class="cat-amount" id="cat-activity">฿0</div></div>
+      <div class="budget-cat"><div class="cat-icon">🛍️</div><div class="cat-label">ช้อปปิ้ง</div><div class="cat-amount" id="cat-shopping">฿0</div></div>
+      <div class="budget-cat"><div class="cat-icon">📦</div><div class="cat-label">อื่นๆ</div><div class="cat-amount" id="cat-other">฿0</div></div>
+    </div>
+    <div class="section-label">รายการ</div>
+    <div class="expense-list" id="expense-list"><div style="padding:16px;text-align:center;color:var(--muted);font-size:14px">⏳ กำลังโหลด...</div></div>
+    <button class="add-btn" onclick="toggleForm('exp-form')">+ เพิ่มรายการ</button>
+    <div class="form-card" id="exp-form">
+      <label>ชื่อรายการ</label><input type="text" id="exp-name" placeholder="เช่น ที่พัก Matsumoto">
+      <label>หมวด</label>
+      <select id="exp-cat">
+        <option value="stay">🏨 ที่พัก</option><option value="transport">🚗 เดินทาง</option>
+        <option value="food">🍜 อาหาร</option><option value="activity">🎟️ กิจกรรม</option>
+        <option value="shopping">🛍️ ช้อปปิ้ง</option><option value="other">📦 อื่นๆ</option>
+      </select>
+      <label>จำนวนเงิน (บาท)</label><input type="number" id="exp-amount" placeholder="0">
+      <div class="form-btns">
+        <button class="btn-save" onclick="addExpense()">บันทึก</button>
+        <button class="btn-cancel" onclick="toggleForm('exp-form')">ยกเลิก</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- CHECKLIST -->
+  <div class="section" id="tab-checklist">
+    <div id="checklist-container"><div class="loading">⏳ กำลังโหลด...</div></div>
+  </div>
+
+  <!-- INFO -->
+  <div class="section" id="tab-info">
+    <div class="section-label">ทีมเดินทาง</div>
+    <div class="members">
+      <div class="member"><div class="member-avatar">👨‍✈️</div><div><div class="member-name">หัวหน้าทริป</div><div class="member-role">ผู้วางแผน</div></div></div>
+      <div class="member"><div class="member-avatar">👩</div><div><div class="member-name">เพทาย</div><div class="member-role">แฟน</div></div></div>
+      <div class="member"><div class="member-avatar">👶</div><div><div class="member-name">เพิร์ล</div><div class="member-role">ลูกสาว 1 ขวบ</div></div></div>
+      <div class="member"><div class="member-avatar">👧</div><div><div class="member-name">มายด์</div><div class="member-role">น้องสาว</div></div></div>
+      <div class="member"><div class="member-avatar">👴</div><div><div class="member-name">พ่อ</div><div class="member-role"></div></div></div>
+      <div class="member"><div class="member-avatar">👵</div><div><div class="member-name">แม่</div><div class="member-role"></div></div></div>
+    </div>
+    <div class="section-label">ข้อมูลสำคัญ</div>
+    <div class="info-chips">
+      <div class="chip chip-red">📅 มิ.ย. 2570</div><div class="chip chip-blue">🗓️ 7 วัน</div>
+      <div class="chip chip-gold">💰 150,000+ บาท</div><div class="chip chip-green">✈️ Chubu Centrair</div>
+    </div>
+    <div class="note-box">⚠️ <strong>มิ.ย. = ฤดูฝน Tsuyu</strong><br>อุณหภูมิ Matsumoto/Hakuba ~15–20°C เย็นกว่าไทยมาก เตรียมเสื้อกันหนาวด้วยครับ 🌫️</div>
+    <div class="section-label">Route สรุป</div>
+    <div class="card"><div style="padding:14px 16px">
+      <div class="route-step"><div class="route-num">1</div><div style="font-size:13px">✈️ ลงสนามบิน → ขับตรง <strong>Matsumoto</strong></div></div>
+      <div class="route-step"><div class="route-num">2</div><div style="font-size:13px">🏯 <strong>Matsumoto</strong> ปราสาท + เดินเมือง</div></div>
+      <div class="route-step"><div class="route-num">3</div><div style="font-size:13px">🏔️ Day Trip <strong>Kamikochi</strong></div></div>
+      <div class="route-step"><div class="route-num">4</div><div style="font-size:13px">⛷️ <strong>Hakuba</strong> Gondola + เที่ยวรอบๆ</div></div>
+      <div class="route-step"><div class="route-num">5</div><div style="font-size:13px">🏙️ ขับตรง <strong>Nagoya</strong> + เที่ยวเมือง</div></div>
+      <div class="route-step"><div class="route-num">6</div><div style="font-size:13px">🛍️ <strong>Nagoya</strong> ช้อปของฝาก</div></div>
+      <div class="route-step"><div class="route-num">7</div><div style="font-size:13px">✈️ <strong>Nagoya → กลับบ้าน</strong></div></div>
+    </div></div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="edit-modal">
+  <div class="modal">
+    <div class="modal-title" id="modal-title">แก้ไขรายการ</div>
+    <label>เวลา</label><input type="text" id="modal-time" placeholder="เช่น 09:00">
+    <label>ชื่อสถานที่/กิจกรรม</label><input type="text" id="modal-label">
+    <label>รายละเอียด</label><textarea id="modal-detail"></textarea>
+    <div class="modal-btns">
+      <button class="modal-save" onclick="saveModal()">บันทึก</button>
+      <button class="modal-cancel" onclick="closeModal()">ยกเลิก</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// FIREBASE CONFIG
+const firebaseConfig = {
+  databaseURL: "https://japan-trips-65377-default-rtdb.firebaseio.com"
+};
+firebase.initializeApp(firebaseConfig);
+const db = firebase.database();
+
+const BUDGET_LIMIT = 150000;
+const catMap = {stay:'🏨',transport:'🚗',food:'🍜',activity:'🎟️',shopping:'🛍️',other:'📦'};
+const catLabel = {stay:'ที่พัก',transport:'เดินทาง',food:'อาหาร',activity:'กิจกรรม',shopping:'ช้อปปิ้ง',other:'อื่นๆ'};
+
+let daysData = [];
+let expenses = {};
+let checklistData = {};
+let editTarget = null;
+
+const DEFAULT_DAYS = [
+  {day:1,title:"Fly in → Matsumoto",sub:"สนามบิน Chubu → มัตสึโมโต้ ~2.5 ชม.",items:[
+    {time:"กลางวัน",icon:"✈️",label:"ลงสนามบิน Chubu Centrair",detail:"รับกระเป๋า รับรถเช่า ตรวจ Child Seat"},
+    {time:"บ่าย",icon:"🚗",label:"ขับทางด่วนไป Matsumoto",detail:"~2.5 ชม. แวะพักได้ที่ PA"},
+    {time:"เย็น",icon:"🏠",label:"Check-in Airbnb Matsumoto",detail:""},
+    {time:"ค่ำ",icon:"🍜",label:"อาหารเย็นในเมือง",detail:"ลองราเมน Matsumoto หรือ Soba"}
+  ]},
+  {day:2,title:"Matsumoto สำรวจ",sub:"ปราสาท + เดินเมือง + คาเฟ่",items:[
+    {time:"เช้า",icon:"🏯",label:"Matsumoto Castle",detail:"ปราสาทไม้ริมน้ำ เปิด 08:30 เข็น Stroller ได้"},
+    {time:"บ่าย",icon:"🛍️",label:"เดินย่าน Nakamachi",detail:"ถนนเก่า ร้านคราฟต์ คาเฟ่"},
+    {time:"บ่าย",icon:"☕",label:"คาเฟ่ + ช้อปปิ้งเบาๆ",detail:"ของที่ระลึก Matsumoto"},
+    {time:"เย็น",icon:"🍱",label:"อาหารเย็น",detail:""}
+  ]},
+  {day:3,title:"Kamikochi Day Trip",sub:"อลปส์ญี่ปุ่น 🏔️",items:[
+    {time:"07:00",icon:"🚗",label:"ออกเดินทางจาก Matsumoto",detail:"ขับ ~40 นาที ไปที่ Sawando"},
+    {time:"08:00",icon:"🚌",label:"ต่อรถบัสเข้า Kamikochi",detail:"รถส่วนตัวเข้าไม่ได้"},
+    {time:"09:00",icon:"🌉",label:"Kappa Bridge + ทะเลสาบ Taisho",detail:"เส้นทางราบ เข็น Stroller ได้"},
+    {time:"บ่าย",icon:"🌿",label:"เดินเส้นทาง Myojin Pond",detail:"~2 ชม. ไปกลับ"},
+    {time:"15:00",icon:"🚌",label:"รถบัสกลับ Sawando",detail:""},
+    {time:"เย็น",icon:"🏠",label:"กลับนอน Matsumoto",detail:""}
+  ]},
+  {day:4,title:"Matsumoto → Hakuba",sub:"ขับ ~1.5 ชม. · Gondola + เที่ยวรอบๆ",items:[
+    {time:"เช้า",icon:"🚗",label:"ออกเดินทางไป Hakuba",detail:"~1.5 ชม."},
+    {time:"สาย",icon:"🚡",label:"Hakuba Happo-one Gondola",detail:"วิว Japan Alps แบบ 360°"},
+    {time:"บ่าย",icon:"🏘️",label:"เดินเล่นย่าน Echoland",detail:"ร้านกาแฟ ช้อปปิ้งเบาๆ"},
+    {time:"เย็น",icon:"🌄",label:"ชมพระอาทิตย์ตก + อาหารเย็น",detail:""}
+  ]},
+  {day:5,title:"Hakuba → Nagoya",sub:"ขับ ~3.5 ชม. · เที่ยวนาโกย่า",items:[
+    {time:"เช้า",icon:"🚗",label:"ออกเดินทางจาก Hakuba",detail:"~3.5 ชม. แวะพักกลางทาง"},
+    {time:"บ่าย",icon:"🏯",label:"Nagoya Castle",detail:"ปราสาทใหญ่ใจกลางเมือง"},
+    {time:"บ่าย",icon:"⛩️",label:"Atsuta Jingu",detail:"ศาลเจ้าใหญ่อันดับ 2 ของญี่ปุ่น"},
+    {time:"ค่ำ",icon:"🍽️",label:"อาหารเย็น Nagoya Style",detail:"มิโซะราเมน / ฮิตสึมาบุชิ"}
+  ]},
+  {day:6,title:"Nagoya เต็มวัน",sub:"ช้อปปิ้ง + ของฝาก",items:[
+    {time:"เช้า",icon:"🛍️",label:"Osu Kannon Shopping District",detail:"ตลาดรวมทุกอย่าง"},
+    {time:"บ่าย",icon:"🏬",label:"JR Nagoya Takashimaya",detail:"ช้อปของฝาก ช็อกโกแลต"},
+    {time:"เย็น",icon:"🍢",label:"กิน Nagoya Meshi ครั้งสุดท้าย!",detail:"Miso Katsu / Tenmusu"}
+  ]},
+  {day:7,title:"Nagoya → ✈️ กลับบ้าน",sub:"สนามบิน Chubu Centrair",items:[
+    {time:"เช้า",icon:"📦",label:"เก็บของ Check-out",detail:""},
+    {time:"สาย",icon:"🚗",label:"ขับไปสนามบิน Chubu Centrair",detail:"~30 นาที"},
+    {time:"บ่าย",icon:"🛒",label:"ช้อปของฝากในสนามบิน",detail:"Duty Free"},
+    {time:"บ่าย",icon:"✈️",label:"บินกลับประเทศไทย",detail:"สวัสดี Japan! 🇯🇵"}
+  ]}
+];
+
+const DEFAULT_CHECKLIST = {
+  "จองล่วงหน้า":{icon:"🎫",items:{
+    a:{label:"ตั๋วเครื่องบิน ไทย → Nagoya",tag:"urgent",done:false},
+    b:{label:"Airbnb Matsumoto (3 คืน)",tag:"urgent",done:false},
+    c:{label:"Airbnb Hakuba (1 คืน)",tag:"urgent",done:false},
+    d:{label:"Airbnb Nagoya (1 คืน)",tag:"urgent",done:false},
+    e:{label:"เช่ารถ + Child Seat (7 วัน)",tag:"urgent",done:false},
+    f:{label:"Hakuba Gondola (Happo-one)",tag:"soon",done:false}
+  }},
+  "เอกสาร":{icon:"🗂️",items:{
+    a:{label:"ต่อพาสปอร์ต (ตรวจอายุทุกคน)",tag:"urgent",done:false},
+    b:{label:"ทำ Visit Japan Web",tag:"soon",done:false},
+    c:{label:"ทำประกันการเดินทาง",tag:"soon",done:false},
+    d:{label:"สำเนาพาสปอร์ตทุกคน",tag:"ok",done:false}
+  }},
+  "สำหรับเบบี้":{icon:"👶",items:{
+    a:{label:"Stroller แบบพับเล็ก",tag:"soon",done:false},
+    b:{label:"ยา/อุปกรณ์ปฐมพยาบาลเด็ก",tag:"ok",done:false},
+    c:{label:"นม/อาหารเสริมสำรอง",tag:"ok",done:false},
+    d:{label:"ผ้าอ้อมสำรอง",tag:"ok",done:false}
+  }},
+  "เตรียมรับฤดูฝน":{icon:"🌧️",items:{
+    a:{label:"เสื้อกันฝนทุกคน",tag:"ok",done:false},
+    b:{label:"ร่มพับได้",tag:"ok",done:false},
+    c:{label:"เสื้อกันหนาว (~15°C)",tag:"ok",done:false}
+  }}
+};
+
+function setSyncStatus(status, text) {
+  const dot = document.getElementById('sync-dot');
+  const tx = document.getElementById('sync-text');
+  dot.className = 'sync-dot ' + status;
+  tx.textContent = text;
+}
+
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2000);
+}
+
+function showTab(id, btn) {
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.getElementById('tab-' + id).classList.add('active');
+  btn.classList.add('active');
+}
+
+function toggleForm(id) {
+  document.getElementById(id).classList.toggle('open');
+}
+
+// FIREBASE INIT DATA
+async function initData() {
+  setSyncStatus('loading', 'กำลังเชื่อมต่อ...');
+  try {
+    const snap = await db.ref('trip').get();
+    if (!snap.exists()) {
+      // Write defaults
+      await db.ref('trip/days').set(DEFAULT_DAYS);
+      await db.ref('trip/checklist').set(DEFAULT_CHECKLIST);
+      showToast('✅ สร้างข้อมูลใหม่แล้ว');
+    }
+    // Listen realtime
+    db.ref('trip/days').on('value', snap => {
+      daysData = snap.val() || DEFAULT_DAYS;
+      renderDays();
+      document.getElementById('itinerary-loading').style.display = 'none';
+    });
+    db.ref('trip/expenses').on('value', snap => {
+      expenses = snap.val() || {};
+      renderBudget();
+    });
+    db.ref('trip/checklist').on('value', snap => {
+      checklistData = snap.val() || DEFAULT_CHECKLIST;
+      renderChecklist();
+    });
+    setSyncStatus('ok', 'ซิงค์แล้ว ✓');
+  } catch(e) {
+    console.error(e);
+    setSyncStatus('err', 'เชื่อมต่อไม่ได้');
+    daysData = DEFAULT_DAYS;
+    checklistData = DEFAULT_CHECKLIST;
+    renderDays();
+    renderChecklist();
+    document.getElementById('itinerary-loading').style.display = 'none';
+  }
+}
+
+// ITINERARY
+function renderDays() {
+  const container = document.getElementById('days-container');
+  container.innerHTML = '';
+  (daysData || []).forEach((day, di) => {
+    const card = document.createElement('div');
+    card.className = 'card' + (di === 0 ? ' open' : '');
+    card.innerHTML = `
+      <div class="card-header" onclick="this.parentElement.classList.toggle('open')">
+        <div class="card-header-left">
+          <span class="day-badge">วันที่ ${day.day}</span>
+          <div><div class="day-title">${day.title}</div><div class="day-sub">${day.sub}</div></div>
+        </div>
+        <span class="chevron">▼</span>
+      </div>
+      <div class="card-body">
+        <div class="timeline" id="tl-${di}"></div>
+        <button class="edit-btn" onclick="openAddModal(${di})">＋ เพิ่มรายการ</button>
+      </div>`;
+    container.appendChild(card);
+    renderTimeline(di);
+  });
+}
+
+function renderTimeline(di) {
+  const tl = document.getElementById('tl-' + di);
+  if (!tl) return;
+  const items = daysData[di].items || [];
+  tl.innerHTML = items.map((item, ii) => `
+    <div class="tl-item">
+      <div class="tl-left">
+        <div class="tl-dot">${item.icon || '📌'}</div>
+        ${ii < items.length - 1 ? '<div class="tl-line"></div>' : ''}
+      </div>
+      <div class="tl-right">
+        <div class="tl-time">${item.time}</div>
+        <div class="tl-label">${item.label}
+          <span style="color:var(--muted);font-size:12px;margin-left:6px;cursor:pointer" onclick="openEditModal(${di},${ii})">✏️</span>
+          <span style="color:#ddd;font-size:12px;margin-left:2px;cursor:pointer" onclick="deleteItem(${di},${ii})">✕</span>
+        </div>
+        ${item.detail ? `<div class="tl-detail">${item.detail}</div>` : ''}
+      </div>
+    </div>`).join('');
+}
+
+function openEditModal(di, ii) {
+  editTarget = {di, ii, mode:'edit'};
+  const item = daysData[di].items[ii];
+  document.getElementById('modal-title').textContent = `แก้ไข — วันที่ ${daysData[di].day}`;
+  document.getElementById('modal-time').value = item.time;
+  document.getElementById('modal-label').value = item.label;
+  document.getElementById('modal-detail').value = item.detail || '';
+  document.getElementById('edit-modal').classList.add('open');
+}
+
+function openAddModal(di) {
+  editTarget = {di, mode:'add'};
+  document.getElementById('modal-title').textContent = `เพิ่มรายการ — วันที่ ${daysData[di].day}`;
+  document.getElementById('modal-time').value = '';
+  document.getElementById('modal-label').value = '';
+  document.getElementById('modal-detail').value = '';
+  document.getElementById('edit-modal').classList.add('open');
+}
+
+function closeModal() { document.getElementById('edit-modal').classList.remove('open'); }
+
+async function saveModal() {
+  const {di, ii, mode} = editTarget;
+  const time = document.getElementById('modal-time').value;
+  const label = document.getElementById('modal-label').value;
+  const detail = document.getElementById('modal-detail').value;
+  if (!label) return;
+  const items = [...(daysData[di].items || [])];
+  if (mode === 'edit') items[ii] = {time, icon: items[ii].icon || '📌', label, detail};
+  else items.push({time, icon:'📌', label, detail});
+  closeModal();
+  setSyncStatus('loading', 'กำลังบันทึก...');
+  try {
+    await db.ref(`trip/days/${di}/items`).set(items);
+    setSyncStatus('ok', 'บันทึกแล้ว ✓');
+    showToast('✅ บันทึกแล้ว');
+  } catch(e) { setSyncStatus('err', 'บันทึกไม่สำเร็จ'); }
+}
+
+async function deleteItem(di, ii) {
+  if (!confirm('ลบรายการนี้?')) return;
+  const items = [...(daysData[di].items || [])];
+  items.splice(ii, 1);
+  try {
+    await db.ref(`trip/days/${di}/items`).set(items);
+    showToast('🗑️ ลบแล้ว');
+  } catch(e) { showToast('❌ ลบไม่สำเร็จ'); }
+}
+
+// BUDGET
+async function addExpense() {
+  const name = document.getElementById('exp-name').value;
+  const cat = document.getElementById('exp-cat').value;
+  const amount = parseFloat(document.getElementById('exp-amount').value) || 0;
+  if (!name || !amount) return;
+  document.getElementById('exp-name').value = '';
+  document.getElementById('exp-amount').value = '';
+  toggleForm('exp-form');
+  setSyncStatus('loading', 'กำลังบันทึก...');
+  try {
+    await db.ref('trip/expenses').push({name, cat, amount});
+    setSyncStatus('ok', 'บันทึกแล้ว ✓');
+    showToast('✅ เพิ่มรายการแล้ว');
+  } catch(e) { setSyncStatus('err', 'บันทึกไม่สำเร็จ'); }
+}
+
+async function deleteExpense(key) {
+  try {
+    await db.ref(`trip/expenses/${key}`).remove();
+    showToast('🗑️ ลบแล้ว');
+  } catch(e) { showToast('❌ ลบไม่สำเร็จ'); }
+}
+
+function renderBudget() {
+  const expArr = Object.entries(expenses || {});
+  const total = expArr.reduce((s, [, e]) => s + e.amount, 0);
+  const pct = Math.min((total / BUDGET_LIMIT) * 100, 100);
+  document.getElementById('total-display').innerHTML = `฿${total.toLocaleString()} <span>/ ฿${BUDGET_LIMIT.toLocaleString()}</span>`;
+  document.getElementById('budget-bar').style.width = pct + '%';
+  document.getElementById('spent-label').textContent = `ใช้แล้ว ฿${total.toLocaleString()}`;
+  document.getElementById('remain-label').textContent = `เหลือ ฿${(BUDGET_LIMIT - total).toLocaleString()}`;
+  const cats = {stay:0,transport:0,food:0,activity:0,shopping:0,other:0};
+  expArr.forEach(([,e]) => cats[e.cat] = (cats[e.cat]||0) + e.amount);
+  Object.keys(cats).forEach(k => { document.getElementById('cat-'+k).textContent = '฿'+cats[k].toLocaleString(); });
+  const list = document.getElementById('expense-list');
+  if (!expArr.length) { list.innerHTML = '<div style="padding:16px;text-align:center;color:var(--muted);font-size:14px">ยังไม่มีรายการ</div>'; return; }
+  list.innerHTML = expArr.map(([key, e]) => `
+    <div class="expense-item">
+      <div class="exp-left">
+        <div class="exp-icon" style="background:var(--japan-light)">${catMap[e.cat]||'📦'}</div>
+        <div><div class="exp-name">${e.name}</div><div class="exp-cat">${catLabel[e.cat]||''}</div></div>
+      </div>
+      <div style="display:flex;align-items:center">
+        <div class="exp-amount">฿${e.amount.toLocaleString()}</div>
+        <div class="exp-del" onclick="deleteExpense('${key}')">✕</div>
+      </div>
+    </div>`).join('');
+}
+
+// CHECKLIST
+async function toggleCheck(groupKey, itemKey) {
+  const current = checklistData[groupKey].items[itemKey].done;
+  setSyncStatus('loading', 'กำลังบันทึก...');
+  try {
+    await db.ref(`trip/checklist/${groupKey}/items/${itemKey}/done`).set(!current);
+    setSyncStatus('ok', 'บันทึกแล้ว ✓');
+  } catch(e) { setSyncStatus('err', 'บันทึกไม่สำเร็จ'); }
+}
+
+function renderChecklist() {
+  const c = document.getElementById('checklist-container');
+  c.innerHTML = '';
+  Object.entries(checklistData || {}).forEach(([groupKey, group]) => {
+    const itemEntries = Object.entries(group.items || {});
+    const done = itemEntries.filter(([,i]) => i.done).length;
+    const div = document.createElement('div');
+    div.className = 'check-group';
+    div.innerHTML = `
+      <div class="check-group-header">${group.icon||''} ${groupKey}<span class="check-progress">${done}/${itemEntries.length}</span></div>
+      ${itemEntries.map(([itemKey, item]) => `
+        <div class="check-item${item.done?' done':''}" onclick="toggleCheck('${groupKey}','${itemKey}')">
+          <div class="check-box">${item.done?'✓':''}</div>
+          <div class="check-label">${item.label}</div>
+          <span class="check-tag tag-${item.tag}">${item.tag==='urgent'?'ด่วน!':item.tag==='soon'?'เร็วๆ นี้':'พอมีเวลา'}</span>
+        </div>`).join('')}`;
+    c.appendChild(div);
+  });
+}
+
+document.getElementById('edit-modal').addEventListener('click', function(e) { if (e.target===this) closeModal(); });
+initData();
+</script>
+</body>
+</html>
