@@ -188,16 +188,21 @@
       <div class="chip chip-red">📅 มิ.ย. 2570</div><div class="chip chip-blue">🗓️ 7 วัน</div>
       <div class="chip chip-gold">💰 150,000+ บาท</div><div class="chip chip-green">✈️ Chubu Centrair</div>
     </div>
-    <div class="note-box">⚠️ <strong>มิ.ย. = ฤดูฝน Tsuyu</strong><br>อุณหภูมิ Matsumoto/Hakuba ~15–20°C เย็นกว่าไทยมาก เตรียมเสื้อกันหนาวด้วยครับ 🌫️</div>
+    <div class="note-box">⚠️ <strong>มิ.ย. = ฤดูฝน Tsuyu</strong><br>อุณหภูมิ Takayama/Hakuba ~15–20°C เย็นกว่าไทยมาก เตรียมเสื้อกันหนาวด้วยครับ 🌫️</div>
     <div class="section-label">Route สรุป</div>
     <div class="card"><div style="padding:14px 16px">
-      <div class="route-step"><div class="route-num">1</div><div style="font-size:13px">✈️ ลงสนามบิน → ขับตรง <strong>Matsumoto</strong></div></div>
-      <div class="route-step"><div class="route-num">2</div><div style="font-size:13px">🏯 <strong>Matsumoto</strong> ปราสาท + เดินเมือง</div></div>
+      <div class="route-step"><div class="route-num">1</div><div style="font-size:13px">✈️ ลงสนามบิน → ขับตรง <strong>Takayama</strong></div></div>
+      <div class="route-step"><div class="route-num">2</div><div style="font-size:13px">🏯 <strong>Takayama</strong> เมืองเก่า + เดินเมือง</div></div>
       <div class="route-step"><div class="route-num">3</div><div style="font-size:13px">🏔️ Day Trip <strong>Kamikochi</strong></div></div>
-      <div class="route-step"><div class="route-num">4</div><div style="font-size:13px">⛷️ <strong>Hakuba</strong> Gondola + เที่ยวรอบๆ</div></div>
+      <div class="route-step"><div class="route-num">4</div><div style="font-size:13px">🏘️ <strong>Shirakawa-go</strong> → ขับต่อ <strong>Hakuba</strong></div></div>
       <div class="route-step"><div class="route-num">5</div><div style="font-size:13px">🏙️ ขับตรง <strong>Nagoya</strong> + เที่ยวเมือง</div></div>
       <div class="route-step"><div class="route-num">6</div><div style="font-size:13px">🛍️ <strong>Nagoya</strong> ช้อปของฝาก</div></div>
       <div class="route-step"><div class="route-num">7</div><div style="font-size:13px">✈️ <strong>Nagoya → กลับบ้าน</strong></div></div>
+    </div></div>
+    <div class="section-label">จัดการข้อมูล</div>
+    <div class="card"><div style="padding:14px 16px">
+      <button onclick="resetToLatestDefaults()" style="width:100%;padding:10px;border-radius:8px;border:1px solid #d33;background:#fff0f0;color:#d33;font-weight:600;font-size:13px">🔄 อัปเดตตารางเป็นเวอร์ชันล่าสุด (Takayama)</button>
+      <div style="font-size:11px;color:#888;margin-top:6px">กดปุ่มนี้ครั้งเดียวเพื่อดันแผนใหม่ (วันที่ 1,2,4 เปลี่ยนเป็น Takayama/Shirakawa-go) เข้า Firebase ⚠️ จะเขียนทับรายการที่แก้เองไว้ในวันที่ 1,2,4</div>
     </div></div>
   </div>
 </div>
@@ -235,31 +240,32 @@ let checklistData = {};
 let editTarget = null;
 
 const DEFAULT_DAYS = [
-  {day:1,title:"Fly in → Matsumoto",sub:"สนามบิน Chubu → มัตสึโมโต้ ~2.5 ชม.",items:[
+  {day:1,title:"Fly in → Takayama",sub:"สนามบิน Chubu → ทาคายาม่า ~2.5 ชม.",items:[
     {time:"กลางวัน",icon:"✈️",label:"ลงสนามบิน Chubu Centrair",detail:"รับกระเป๋า รับรถเช่า ตรวจ Child Seat"},
-    {time:"บ่าย",icon:"🚗",label:"ขับทางด่วนไป Matsumoto",detail:"~2.5 ชม. แวะพักได้ที่ PA"},
-    {time:"เย็น",icon:"🏠",label:"Check-in Airbnb Matsumoto",detail:""},
-    {time:"ค่ำ",icon:"🍜",label:"อาหารเย็นในเมือง",detail:"ลองราเมน Matsumoto หรือ Soba"}
+    {time:"บ่าย",icon:"🚗",label:"ขับทางด่วนไป Takayama",detail:"~2.5 ชม. แวะพักได้ที่ PA"},
+    {time:"เย็น",icon:"🏠",label:"Check-in Airbnb Takayama",detail:""},
+    {time:"ค่ำ",icon:"🍜",label:"อาหารเย็นในเมือง",detail:"ลองฮิดะบีฟ (Hida Beef) หรือ Soba"}
   ]},
-  {day:2,title:"Matsumoto สำรวจ",sub:"ปราสาท + เดินเมือง + คาเฟ่",items:[
-    {time:"เช้า",icon:"🏯",label:"Matsumoto Castle",detail:"ปราสาทไม้ริมน้ำ เปิด 08:30 เข็น Stroller ได้"},
-    {time:"บ่าย",icon:"🛍️",label:"เดินย่าน Nakamachi",detail:"ถนนเก่า ร้านคราฟต์ คาเฟ่"},
-    {time:"บ่าย",icon:"☕",label:"คาเฟ่ + ช้อปปิ้งเบาๆ",detail:"ของที่ระลึก Matsumoto"},
+  {day:2,title:"Takayama สำรวจ",sub:"เมืองเก่า + เดินเมือง + คาเฟ่",items:[
+    {time:"เช้า",icon:"🏮",label:"ตลาดเช้า Miyagawa/Jinya-mae",detail:"ของสด ของฝาก เปิดแต่เช้า เดินง่ายกับเด็กเล็ก"},
+    {time:"สาย",icon:"🏯",label:"ถนนซันมาจิ (Sanmachi Suji)",detail:"เมืองเก่าสไตล์เอโดะ ร้านซาเก้บริวเวอรี่"},
+    {time:"บ่าย",icon:"☕",label:"คาเฟ่ + ช้อปปิ้งเบาๆ",detail:"ของที่ระลึก Takayama"},
     {time:"เย็น",icon:"🍱",label:"อาหารเย็น",detail:""}
   ]},
   {day:3,title:"Kamikochi Day Trip",sub:"อลปส์ญี่ปุ่น 🏔️",items:[
-    {time:"07:00",icon:"🚗",label:"ออกเดินทางจาก Matsumoto",detail:"ขับ ~40 นาที ไปที่ Sawando"},
+    {time:"07:00",icon:"🚗",label:"ออกเดินทางจาก Takayama",detail:"ขับ ~1 ชม. ไปที่ Sawando/Hirayu"},
     {time:"08:00",icon:"🚌",label:"ต่อรถบัสเข้า Kamikochi",detail:"รถส่วนตัวเข้าไม่ได้"},
     {time:"09:00",icon:"🌉",label:"Kappa Bridge + ทะเลสาบ Taisho",detail:"เส้นทางราบ เข็น Stroller ได้"},
     {time:"บ่าย",icon:"🌿",label:"เดินเส้นทาง Myojin Pond",detail:"~2 ชม. ไปกลับ"},
-    {time:"15:00",icon:"🚌",label:"รถบัสกลับ Sawando",detail:""},
-    {time:"เย็น",icon:"🏠",label:"กลับนอน Matsumoto",detail:""}
+    {time:"15:00",icon:"🚌",label:"รถบัสกลับ",detail:""},
+    {time:"เย็น",icon:"🏠",label:"กลับนอน Takayama",detail:""}
   ]},
-  {day:4,title:"Matsumoto → Hakuba",sub:"ขับ ~1.5 ชม. · Gondola + เที่ยวรอบๆ",items:[
-    {time:"เช้า",icon:"🚗",label:"ออกเดินทางไป Hakuba",detail:"~1.5 ชม."},
-    {time:"สาย",icon:"🚡",label:"Hakuba Happo-one Gondola",detail:"วิว Japan Alps แบบ 360°"},
-    {time:"บ่าย",icon:"🏘️",label:"เดินเล่นย่าน Echoland",detail:"ร้านกาแฟ ช้อปปิ้งเบาๆ"},
-    {time:"เย็น",icon:"🌄",label:"ชมพระอาทิตย์ตก + อาหารเย็น",detail:""}
+  {day:4,title:"Takayama → Shirakawa-go → Hakuba",sub:"เที่ยวหมู่บ้านมรดกโลก + ขับต่อ ~3 ชม.",items:[
+    {time:"เช้า",icon:"🚗",label:"ออกเดินทางไป Shirakawa-go",detail:"~50 นาที แนะนำออกแต่เช้าหนีคนเยอะ"},
+    {time:"สาย",icon:"🏘️",label:"เที่ยวหมู่บ้าน Gassho-zukuri",detail:"เดินชมหมู่บ้าน + จุดชมวิว Shiroyama (ทางลาดง่าย)"},
+    {time:"เที่ยง",icon:"🍚",label:"อาหารกลางวันใน Shirakawa-go",detail:"ร้านโซบะ/ฮิดะบีฟท้องถิ่น"},
+    {time:"บ่าย",icon:"🚗",label:"ขับต่อไป Hakuba",detail:"~3 ชม. แวะพักกลางทางเผื่อเด็ก+ผู้สูงอายุ"},
+    {time:"เย็น",icon:"🏠",label:"Check-in ที่พัก Hakuba",detail:""}
   ]},
   {day:5,title:"Hakuba → Nagoya",sub:"ขับ ~3.5 ชม. · เที่ยวนาโกย่า",items:[
     {time:"เช้า",icon:"🚗",label:"ออกเดินทางจาก Hakuba",detail:"~3.5 ชม. แวะพักกลางทาง"},
@@ -283,7 +289,7 @@ const DEFAULT_DAYS = [
 const DEFAULT_CHECKLIST = {
   "จองล่วงหน้า":{icon:"🎫",items:{
     a:{label:"ตั๋วเครื่องบิน ไทย → Nagoya",tag:"urgent",done:false},
-    b:{label:"Airbnb Matsumoto (3 คืน)",tag:"urgent",done:false},
+    b:{label:"Airbnb Takayama (3 คืน)",tag:"urgent",done:false},
     c:{label:"Airbnb Hakuba (1 คืน)",tag:"urgent",done:false},
     d:{label:"Airbnb Nagoya (1 คืน)",tag:"urgent",done:false},
     e:{label:"เช่ารถ + Child Seat (7 วัน)",tag:"urgent",done:false},
@@ -331,6 +337,18 @@ function showTab(id, btn) {
 
 function toggleForm(id) {
   document.getElementById(id).classList.toggle('open');
+}
+
+// ONE-TIME MIGRATION: push updated DEFAULT_DAYS (Takayama route) into Firebase
+async function resetToLatestDefaults() {
+  if (!confirm('จะเขียนทับตารางวันที่ 1, 2, 4 ด้วยแผนล่าสุด (Takayama/Shirakawa-go) รายการที่เคยแก้เองในวันนั้นๆ จะหายไป ยืนยันมั้ย?')) return;
+  try {
+    await db.ref('trip/days').set(DEFAULT_DAYS);
+    showToast('✅ อัปเดตตารางเป็นเวอร์ชันล่าสุดแล้ว');
+  } catch(e) {
+    console.error(e);
+    showToast('❌ อัปเดตไม่สำเร็จ ลองใหม่อีกครั้ง');
+  }
 }
 
 // FIREBASE INIT DATA
