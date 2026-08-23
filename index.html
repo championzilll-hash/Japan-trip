@@ -113,7 +113,7 @@
   <div class="header-top">
     <div>
       <div class="header-title">🇯🇵 Japan Trip 2570</div>
-      <div class="header-sub">มิ.ย. 2570 · 7 วัน · 6 คน</div>
+      <div class="header-sub">29 พ.ค.–5 มิ.ย. 2570 · 8 วัน/7 คืน · 6 คน</div>
     </div>
     <div class="sync-status"><span class="sync-dot loading" id="sync-dot"></span><span id="sync-text">กำลังเชื่อมต่อ...</span></div>
   </div>
@@ -185,10 +185,21 @@
     </div>
     <div class="section-label">ข้อมูลสำคัญ</div>
     <div class="info-chips">
-      <div class="chip chip-red">📅 มิ.ย. 2570</div><div class="chip chip-blue">🗓️ 7 วัน</div>
+      <div class="chip chip-red">📅 29 พ.ค.–5 มิ.ย. 70</div><div class="chip chip-blue">🗓️ 8 วัน / 7 คืน</div>
       <div class="chip chip-gold">💰 150,000+ บาท</div><div class="chip chip-green">✈️ Chubu Centrair</div>
     </div>
-    <div class="note-box">⚠️ <strong>มิ.ย. = ฤดูฝน Tsuyu</strong><br>อุณหภูมิ Takayama/Hakuba ~15–20°C เย็นกว่าไทยมาก เตรียมเสื้อกันหนาวด้วยครับ 🌫️</div>
+    <div class="note-box">⚠️ <strong>ปลาย พ.ค.–ต้น มิ.ย. = เริ่มเข้าหน้าฝน Tsuyu</strong><br>อุณหภูมิ Takayama/Hakuba ~15–20°C เย็นกว่าไทยมาก เตรียมเสื้อกันหนาว + ร่ม/เสื้อกันฝนด้วยครับ 🌫️</div>
+    <div class="section-label">เที่ยวบิน</div>
+    <div class="card"><div style="padding:14px 16px">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+        <div><div style="font-size:13px;font-weight:600">✈️ ขาไป · TG644</div><div style="font-size:12px;color:var(--muted)">ส. 29 พ.ค. 2570 · Ref 8Y7UIM</div></div>
+        <div style="text-align:right;font-size:12px"><strong>00:05</strong> BKK<br>→ <strong>08:00</strong> NGO</div>
+      </div>
+      <div style="border-top:1px solid var(--border);padding-top:10px;display:flex;justify-content:space-between;align-items:center">
+        <div><div style="font-size:13px;font-weight:600">✈️ ขากลับ · TG645</div><div style="font-size:12px;color:var(--muted)">ส. 5 มิ.ย. 2570 · Ref 8Y7UIM</div></div>
+        <div style="text-align:right;font-size:12px"><strong>11:00</strong> NGO<br>→ <strong>15:00</strong> BKK</div>
+      </div>
+    </div></div>
     <div class="section-label">Route สรุป</div>
     <div class="card"><div style="padding:14px 16px">
       <div class="route-step"><div class="route-num">1</div><div style="font-size:13px">✈️ ลงสนามบิน → ขับตรง <strong>Takayama</strong></div></div>
@@ -201,8 +212,8 @@
     </div></div>
     <div class="section-label">จัดการข้อมูล</div>
     <div class="card"><div style="padding:14px 16px">
-      <button onclick="resetToLatestDefaults()" style="width:100%;padding:10px;border-radius:8px;border:1px solid #d33;background:#fff0f0;color:#d33;font-weight:600;font-size:13px">🔄 อัปเดตตารางเป็นเวอร์ชันล่าสุด (Takayama)</button>
-      <div style="font-size:11px;color:#888;margin-top:6px">กดปุ่มนี้ครั้งเดียวเพื่อดันแผนใหม่ (วันที่ 1,2,4 เปลี่ยนเป็น Takayama/Shirakawa-go) เข้า Firebase ⚠️ จะเขียนทับรายการที่แก้เองไว้ในวันที่ 1,2,4</div>
+      <button onclick="resetToLatestDefaults()" style="width:100%;padding:10px;border-radius:8px;border:1px solid #d33;background:#fff0f0;color:#d33;font-weight:600;font-size:13px">🔄 อัปเดตตาราง + Checklist เป็นเวอร์ชันล่าสุด</button>
+      <div style="font-size:11px;color:#888;margin-top:6px">ปกติแอปจะอัปเดตเองอัตโนมัติ (auto-migration) กดปุ่มนี้เฉพาะกรณีอยากดันแผนล่าสุด (วันที่จริง 8 วัน + แก้ Matsumoto) เข้า Firebase ด้วยตัวเอง ⚠️ จะเขียนทับตาราง+checklist ที่แก้เองไว้ทั้งหมด</div>
     </div></div>
   </div>
 </div>
@@ -231,6 +242,7 @@ firebase.initializeApp(firebaseConfig);
 const db = firebase.database();
 
 const BUDGET_LIMIT = 150000;
+const DATA_VERSION = 2; // bump นี้ทุกครั้งที่แก้ DEFAULT_DAYS/CHECKLIST เพื่อ auto-migration
 const catMap = {stay:'🏨',transport:'🚗',food:'🍜',activity:'🎟️',shopping:'🛍️',other:'📦'};
 const catLabel = {stay:'ที่พัก',transport:'เดินทาง',food:'อาหาร',activity:'กิจกรรม',shopping:'ช้อปปิ้ง',other:'อื่นๆ'};
 
@@ -240,19 +252,20 @@ let checklistData = {};
 let editTarget = null;
 
 const DEFAULT_DAYS = [
-  {day:1,title:"Fly in → Takayama",sub:"สนามบิน Chubu → ทาคายาม่า ~2.5 ชม.",items:[
-    {time:"กลางวัน",icon:"✈️",label:"ลงสนามบิน Chubu Centrair",detail:"รับกระเป๋า รับรถเช่า ตรวจ Child Seat"},
-    {time:"บ่าย",icon:"🚗",label:"ขับทางด่วนไป Takayama",detail:"~2.5 ชม. แวะพักได้ที่ PA"},
-    {time:"เย็น",icon:"🏠",label:"Check-in Airbnb Takayama",detail:""},
+  {day:1,title:"บินไป → Takayama",sub:"ส. 29 พ.ค. · ถึง Chubu 08:00 → ทาคายาม่า ~2.5 ชม.",items:[
+    {time:"00:05",icon:"✈️",label:"ออกจากสุวรรณภูมิ (TG644)",detail:"BKK 00:05 → Chubu 08:00 · Ref 8Y7UIM"},
+    {time:"08:00",icon:"🛬",label:"ถึงสนามบิน Chubu Centrair T1",detail:"รับกระเป๋า รับรถเช่า ตรวจ Child Seat"},
+    {time:"เที่ยง",icon:"🚗",label:"ขับทางด่วนไป Takayama",detail:"~2.5 ชม. แวะพักได้ที่ PA"},
+    {time:"16:00",icon:"🏠",label:"เช็คอิน Airbnb Takayama (คืน 1-3)",detail:"🏠 Home in Takayama · Host: Ryohei · 25 Shimakawaharamachi · เช็คเอาท์ 1 มิ.ย. 10:00"},
     {time:"ค่ำ",icon:"🍜",label:"อาหารเย็นในเมือง",detail:"ลองฮิดะบีฟ (Hida Beef) หรือ Soba"}
   ]},
-  {day:2,title:"Takayama สำรวจ",sub:"เมืองเก่า + เดินเมือง + คาเฟ่",items:[
+  {day:2,title:"Takayama สำรวจ",sub:"อา. 30 พ.ค. · เมืองเก่า + เดินเมือง + คาเฟ่",items:[
     {time:"เช้า",icon:"🏮",label:"ตลาดเช้า Miyagawa/Jinya-mae",detail:"ของสด ของฝาก เปิดแต่เช้า เดินง่ายกับเด็กเล็ก"},
     {time:"สาย",icon:"🏯",label:"ถนนซันมาจิ (Sanmachi Suji)",detail:"เมืองเก่าสไตล์เอโดะ ร้านซาเก้บริวเวอรี่"},
     {time:"บ่าย",icon:"☕",label:"คาเฟ่ + ช้อปปิ้งเบาๆ",detail:"ของที่ระลึก Takayama"},
-    {time:"เย็น",icon:"🍱",label:"อาหารเย็น",detail:""}
+    {time:"เย็น",icon:"🍱",label:"อาหารเย็น (นอน Takayama)",detail:""}
   ]},
-  {day:3,title:"Kamikochi Day Trip",sub:"อลปส์ญี่ปุ่น 🏔️",items:[
+  {day:3,title:"Kamikochi Day Trip",sub:"จ. 31 พ.ค. · อัลป์ญี่ปุ่น 🏔️ (นอน Takayama)",items:[
     {time:"07:00",icon:"🚗",label:"ออกเดินทางจาก Takayama",detail:"ขับ ~1 ชม. ไปที่ Sawando/Hirayu"},
     {time:"08:00",icon:"🚌",label:"ต่อรถบัสเข้า Kamikochi",detail:"รถส่วนตัวเข้าไม่ได้"},
     {time:"09:00",icon:"🌉",label:"Kappa Bridge + ทะเลสาบ Taisho",detail:"เส้นทางราบ เข็น Stroller ได้"},
@@ -260,39 +273,45 @@ const DEFAULT_DAYS = [
     {time:"15:00",icon:"🚌",label:"รถบัสกลับ",detail:""},
     {time:"เย็น",icon:"🏠",label:"กลับนอน Takayama",detail:""}
   ]},
-  {day:4,title:"Takayama → Shirakawa-go → Hakuba",sub:"เที่ยวหมู่บ้านมรดกโลก + ขับต่อ ~3 ชม.",items:[
+  {day:4,title:"Takayama → Shirakawa-go → Hakuba",sub:"อ. 1 มิ.ย. · หมู่บ้านมรดกโลก + ขับต่อ ~3 ชม.",items:[
+    {time:"10:00",icon:"📦",label:"เช็คเอาท์ Airbnb Takayama",detail:""},
     {time:"เช้า",icon:"🚗",label:"ออกเดินทางไป Shirakawa-go",detail:"~50 นาที แนะนำออกแต่เช้าหนีคนเยอะ"},
     {time:"สาย",icon:"🏘️",label:"เที่ยวหมู่บ้าน Gassho-zukuri",detail:"เดินชมหมู่บ้าน + จุดชมวิว Shiroyama (ทางลาดง่าย)"},
     {time:"เที่ยง",icon:"🍚",label:"อาหารกลางวันใน Shirakawa-go",detail:"ร้านโซบะ/ฮิดะบีฟท้องถิ่น"},
     {time:"บ่าย",icon:"🚗",label:"ขับต่อไป Hakuba",detail:"~3 ชม. แวะพักกลางทางเผื่อเด็ก+ผู้สูงอายุ"},
-    {time:"เย็น",icon:"🏠",label:"Check-in ที่พัก Hakuba",detail:""}
+    {time:"เย็น",icon:"🏠",label:"เช็คอินที่พัก Hakuba (คืน 4)",detail:"⏳ ยังไม่ได้จอง — รอเลือก Airbnb"}
   ]},
-  {day:5,title:"Hakuba → Nagoya",sub:"ขับ ~3.5 ชม. · เที่ยวนาโกย่า",items:[
+  {day:5,title:"Hakuba → Nagoya",sub:"พ. 2 มิ.ย. · ขับ ~3.5 ชม. · เที่ยวนาโกย่า",items:[
     {time:"เช้า",icon:"🚗",label:"ออกเดินทางจาก Hakuba",detail:"~3.5 ชม. แวะพักกลางทาง"},
+    {time:"บ่าย",icon:"🏠",label:"เช็คอิน Airbnb Nagoya (คืน 5-7)",detail:"⏳ ยังไม่ได้จอง — รอเลือก Airbnb (3 คืน)"},
     {time:"บ่าย",icon:"🏯",label:"Nagoya Castle",detail:"ปราสาทใหญ่ใจกลางเมือง"},
-    {time:"บ่าย",icon:"⛩️",label:"Atsuta Jingu",detail:"ศาลเจ้าใหญ่อันดับ 2 ของญี่ปุ่น"},
     {time:"ค่ำ",icon:"🍽️",label:"อาหารเย็น Nagoya Style",detail:"มิโซะราเมน / ฮิตสึมาบุชิ"}
   ]},
-  {day:6,title:"Nagoya เต็มวัน",sub:"ช้อปปิ้ง + ของฝาก",items:[
-    {time:"เช้า",icon:"🛍️",label:"Osu Kannon Shopping District",detail:"ตลาดรวมทุกอย่าง"},
-    {time:"บ่าย",icon:"🏬",label:"JR Nagoya Takashimaya",detail:"ช้อปของฝาก ช็อกโกแลต"},
-    {time:"เย็น",icon:"🍢",label:"กิน Nagoya Meshi ครั้งสุดท้าย!",detail:"Miso Katsu / Tenmusu"}
+  {day:6,title:"Nagoya เต็มวัน",sub:"พฤ. 3 มิ.ย. · ศาลเจ้า + เดินเที่ยว",items:[
+    {time:"เช้า",icon:"⛩️",label:"Atsuta Jingu",detail:"ศาลเจ้าใหญ่อันดับ 2 ของญี่ปุ่น"},
+    {time:"บ่าย",icon:"🛍️",label:"Osu Kannon Shopping District",detail:"ตลาดรวมทุกอย่าง เดินเที่ยวกับเบบี๋ได้"},
+    {time:"เย็น",icon:"🍢",label:"Nagoya Meshi",detail:"Miso Katsu / Tenmusu"}
   ]},
-  {day:7,title:"Nagoya → ✈️ กลับบ้าน",sub:"สนามบิน Chubu Centrair",items:[
-    {time:"เช้า",icon:"📦",label:"เก็บของ Check-out",detail:""},
-    {time:"สาย",icon:"🚗",label:"ขับไปสนามบิน Chubu Centrair",detail:"~30 นาที"},
-    {time:"บ่าย",icon:"🛒",label:"ช้อปของฝากในสนามบิน",detail:"Duty Free"},
-    {time:"บ่าย",icon:"✈️",label:"บินกลับประเทศไทย",detail:"สวัสดี Japan! 🇯🇵"}
+  {day:7,title:"Nagoya เต็มวัน (คืนสุดท้าย)",sub:"ศ. 4 มิ.ย. · กิจกรรมครอบครัว + ช้อปของฝาก",items:[
+    {time:"เช้า",icon:"🎡",label:"กิจกรรมครอบครัว (เลือกได้)",detail:"Legoland / พิพิธภัณฑ์วิทย์ (ท้องฟ้าจำลอง) / สวนสัตว์ Higashiyama"},
+    {time:"บ่าย",icon:"🏬",label:"JR Nagoya Takashimaya",detail:"ช้อปของฝาก ช็อกโกแลต"},
+    {time:"เย็น",icon:"🍜",label:"กิน Nagoya Meshi ครั้งสุดท้าย!",detail:"เก็บของ เตรียมกลับ"}
+  ]},
+  {day:8,title:"Nagoya → ✈️ กลับบ้าน",sub:"ส. 5 มิ.ย. · บินกลับ TG645 11:00",items:[
+    {time:"เช้า",icon:"📦",label:"เก็บของ เช็คเอาท์",detail:""},
+    {time:"08:00",icon:"🚗",label:"ขับไปสนามบิน + คืนรถ",detail:"Nagoya → Chubu Centrair ~30-45 นาที"},
+    {time:"09:00",icon:"🛒",label:"เช็คอิน + ช้อปของฝากในสนามบิน",detail:"Duty Free"},
+    {time:"11:00",icon:"✈️",label:"บินกลับ (TG645)",detail:"Chubu 11:00 → BKK 15:00 · สวัสดี Japan! 🇯🇵"}
   ]}
 ];
 
 const DEFAULT_CHECKLIST = {
   "จองล่วงหน้า":{icon:"🎫",items:{
-    a:{label:"ตั๋วเครื่องบิน ไทย → Nagoya",tag:"urgent",done:false},
-    b:{label:"Airbnb Takayama (3 คืน)",tag:"urgent",done:false},
-    c:{label:"Airbnb Hakuba (1 คืน)",tag:"urgent",done:false},
-    d:{label:"Airbnb Nagoya (1 คืน)",tag:"urgent",done:false},
-    e:{label:"เช่ารถ + Child Seat (7 วัน)",tag:"urgent",done:false},
+    a:{label:"ตั๋วเครื่องบิน BKK ⇄ Nagoya (TG644/TG645)",tag:"ok",done:true},
+    b:{label:"Airbnb Takayama (คืน 1-3)",tag:"ok",done:true},
+    c:{label:"Airbnb Hakuba (คืน 4)",tag:"urgent",done:false},
+    d:{label:"Airbnb Nagoya (คืน 5-7 · 3 คืน)",tag:"urgent",done:false},
+    e:{label:"เช่ารถ + Child Seat (8 วัน)",tag:"urgent",done:false},
     f:{label:"Hakuba Gondola (Happo-one)",tag:"soon",done:false}
   }},
   "เอกสาร":{icon:"🗂️",items:{
@@ -341,10 +360,12 @@ function toggleForm(id) {
 
 // ONE-TIME MIGRATION: push updated DEFAULT_DAYS (Takayama route) into Firebase
 async function resetToLatestDefaults() {
-  if (!confirm('จะเขียนทับตารางวันที่ 1, 2, 4 ด้วยแผนล่าสุด (Takayama/Shirakawa-go) รายการที่เคยแก้เองในวันนั้นๆ จะหายไป ยืนยันมั้ย?')) return;
+  if (!confirm('จะเขียนทับตาราง + checklist ด้วยแผนล่าสุด (8 วัน + วันที่จริง + แก้ Matsumoto) รายการที่เคยแก้เองจะหายไป ยืนยันมั้ย?')) return;
   try {
     await db.ref('trip/days').set(DEFAULT_DAYS);
-    showToast('✅ อัปเดตตารางเป็นเวอร์ชันล่าสุดแล้ว');
+    await db.ref('trip/checklist').set(DEFAULT_CHECKLIST);
+    await db.ref('trip/version').set(DATA_VERSION);
+    showToast('✅ อัปเดตตาราง+checklist เป็นเวอร์ชันล่าสุดแล้ว');
   } catch(e) {
     console.error(e);
     showToast('❌ อัปเดตไม่สำเร็จ ลองใหม่อีกครั้ง');
@@ -357,10 +378,20 @@ async function initData() {
   try {
     const snap = await db.ref('trip').get();
     if (!snap.exists()) {
-      // Write defaults
+      // Write defaults ครั้งแรก
       await db.ref('trip/days').set(DEFAULT_DAYS);
       await db.ref('trip/checklist').set(DEFAULT_CHECKLIST);
+      await db.ref('trip/version').set(DATA_VERSION);
       showToast('✅ สร้างข้อมูลใหม่แล้ว');
+    } else {
+      // AUTO-MIGRATION: ถ้าข้อมูลใน Firebase เก่ากว่าเวอร์ชันปัจจุบัน ดันแผน+checklist ล่าสุดทับ (แก้ Matsumoto/วันที่จริง)
+      const existingVersion = snap.val().version || 1;
+      if (existingVersion < DATA_VERSION) {
+        await db.ref('trip/days').set(DEFAULT_DAYS);
+        await db.ref('trip/checklist').set(DEFAULT_CHECKLIST);
+        await db.ref('trip/version').set(DATA_VERSION);
+        showToast('✅ อัปเดตแผนเป็นเวอร์ชันล่าสุดแล้ว');
+      }
     }
     // Listen realtime
     db.ref('trip/days').on('value', snap => {
